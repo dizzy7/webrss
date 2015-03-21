@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<opml version="1.0">
+    <head>
+        <title>Test OPML source</title>
+    </head>
+    <body>
+        <outline type="rss" text="Хабрахабр" title="Хабрахабр" xmlUrl="http://habrahabr.ru/rss/" htmlUrl="http://habrahabr.ru/posts/collective/"/>
+    </body>
+</opml>

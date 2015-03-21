@@ -1,0 +1,9 @@
+{% extends 'DizzyRssReaderBundle::layout-static.html.twig' %}
+
+{% block body -%}
+    <ul class="list-group">
+        {% for feed in feeds %}
+            <li class="list-group-item">{{ feed.title }} <a class="unsibscribe-link pull-right" href="{{ path('feed_unsubscribe',{feed:feed.id}) }}"><span class="glyphicon glyphicon-remove"></span> Отписаться</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}

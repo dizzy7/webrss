@@ -1,0 +1,30 @@
+{% extends 'DizzyRssReaderBundle::layout-angular.html.twig' %}
+
+{% block title %}Добро пожаловать в RSS reader{% endblock %}
+
+{% block body %}
+
+    <div ng-controller="mainController">
+        <h1 ng-bind="h1"></h1>
+
+        <ul class="posts-list" ng-show="loaded" infinite-scroll='nextPage()' infinite-scroll-disabled='loading' infinite-scroll-distance='1'>
+            <li ng-repeat="post in posts" ng-class="{true:'',undefined:'active'}[post.read]">
+                <h3><a href="[[ post.url ]]" target="_blank" ng-bind-html="post.title"></a></h3>
+                <div class="post-date" ng-bind="post.created"></div>
+                <div class="post-setread">
+                    <button class="btn btn-read" ng-class="{true:'btn-disabled',undefined:'btn-success'}[post.read]" ng-click="setRead()">Прочитал</button>
+                </div>
+                <div class="clear"></div><br>
+                <div class="body" ng-bind-html="post.body"></div>
+                <br>
+                <a href="[[ post.url ]]" target="_blank">Читать дальше</a> <div ng-click="saveToPocket(post)" title="Сохранить в Pocket" class="save-to-pocket"></div>
+                <br>
+                <hr class="separator">
+            </li>
+        </ul>
+        <div ng-show="loading">Загрузка...</div>
+
+    </div>
+
+{% endblock %}
+

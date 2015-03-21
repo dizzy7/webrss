@@ -1,0 +1,23 @@
+{% extends 'DizzyRssReaderBundle::layout-static.html.twig' %}
+
+{% block title %}Добро пожаловать в RSS reader{% endblock %}
+
+{% block body %}
+
+    <div id="users" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+    <div id="posts" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+
+{% endblock %}
+
+{% block js %}
+    {{ parent() }}
+
+    <script src="https://code.highcharts.com/4.0.1/highcharts.js"></script>
+    <script src="https://code.highcharts.com/4.0.1/modules/exporting.js"></script>
+    <script type="text/javascript">
+        {{ chart(users) }}
+        {{ chart(posts) }}
+    </script>
+
+{% endblock %}
+

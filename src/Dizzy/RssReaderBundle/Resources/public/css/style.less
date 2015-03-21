@@ -1,0 +1,73 @@
+.posts-list {
+  list-style: none;
+  padding-left: 0;
+  li {
+    margin-bottom: 20px;
+    margin-left: 0;
+  }
+}
+
+.post-date {
+  color: gray;
+  margin-bottom: 15px;
+}
+
+.post-date {
+  float: left;
+  margin-right: 20px;
+}
+
+.post-setread {
+  display: inline-block;
+}
+
+ul.feeds {
+  a {
+    cursor: pointer;
+  }
+}
+
+#content-right {
+  overflow: hidden;
+
+  img {
+    max-width: 300px;
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 768px){
+  .affix {
+    position: static;
+  }
+}
+
+@media (min-width: 768px) {
+  .affix {
+    position: fixed;
+  }
+}
+
+div.save-to-pocket {
+  display: inline-block;
+  width: 21px;
+  height: 19px;
+  cursor: pointer;
+  margin-left: 20px;
+  background: url(/bundles/dizzyrssreader/images/pocket.png) no-repeat;
+  &:hover {
+    background: url(/bundles/dizzyrssreader/images/pocket_active.png) no-repeat;
+  }
+}
+
+#msg {
+  width: 40%;
+}
+
+.out {
+  opacity: 0 !important;
+  -webkit-transition: opacity 2s linear !important;
+  -moz-transition: opacity 2s linear;
+  -o-transition: opacity 2s linear;
+  transition: opacity 2s linear !important;
+}

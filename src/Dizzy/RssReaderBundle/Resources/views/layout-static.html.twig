@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>{% block title %}RSS Reader{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap -->
+    <link href="{{ asset('css/bootstrap.css') }}" rel="stylesheet" media="screen">
+
+    {% block stylesheets %}
+        {% stylesheets 'bundles/dizzyrssreader/css/*' filter='cssrewrite' %}
+        <link rel="stylesheet" href="{{ asset_url }}"/>
+        {% endstylesheets %}
+    {% endblock %}
+
+    <!-- HTML5 Shim and Respond.js add IE8 support of HTML5 elements and media queries -->
+    {% include 'BraincraftedBootstrapBundle::ie8-support.html.twig' %}
+
+    {% include '@DizzyRssReader/_blocks/ga.html.twig' %}
+
+</head>
+
+<body ng-app="rssApp">
+
+<div class="container">
+
+    <div class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="{{ path('index') }}">RSS Reader</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                {{ knp_menu_render('DizzyRssReaderBundle:Builder:mainMenu', {'style':'navbar'} ) }}
+                <ul class="nav navbar-nav navbar-right">
+                    {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ app.user.username }}<b
+                                        class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="{{ path('fos_user_security_logout') }}">Выйти</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a href="{{ path('fos_user_registration_register') }}">Регистрация</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('fos_user_security_login') }}">Войти</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container-fluid">
+
+        <h1>{% block h1 %}RSS Reader{% endblock %}</h1>
+        {% block body %}
+
+        {% endblock %}
+
+    </div>
+
+</div>
+
+{% block js %}
+    {{ include('@DizzyRssReader/_blocks/js.html.twig') }}
+{% endblock %}
+</body>
+</html>
