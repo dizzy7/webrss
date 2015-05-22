@@ -76,9 +76,9 @@ braincrafted_bootstrap:
     less_filter: less
 
 fos_user:
-    db_driver: orm
+    db_driver: mongodb
     firewall_name: main
-    user_class: Dizzy\RssReaderBundle\Entity\User
+    user_class: Dizzy\RssReaderBundle\Document\User
     registration:
         confirmation:
             enabled:    true
@@ -87,3 +87,13 @@ fos_user:
         sender_name:    RSS Reader
     service:
         mailer: fos_user.mailer.twig_swift
+
+doctrine_mongodb:
+    connections:
+        default:
+            server: mongodb://localhost:27017
+            options: {}
+    default_database: rss
+    document_managers:
+        default:
+            auto_mapping: true

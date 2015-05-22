@@ -5,31 +5,29 @@ namespace Dizzy\RssReaderBundle\Services;
 
 
 use DateTime;
-use Dizzy\RssReaderBundle\Entity\Feed;
-use Dizzy\RssReaderBundle\Entity\Post;
+use Dizzy\RssReaderBundle\Document\Feed;
+use Dizzy\RssReaderBundle\Document\Post;
+use Dizzy\RssReaderBundle\Document\UnreadReference;
 use Dizzy\RssReaderBundle\Interfaces\RssFetcherInterface;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ODM\MongoDB\DocumentManager;
+use Dizzy\RssReaderBundle\Document\User;
 use SimplePie_Item;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
 class SimplePie implements RssFetcherInterface
 {
-
-    /** @var ContainerInterface */
-    private $container;
-    /** @var EntityManager */
-    private $entityManager;
+    /** @var DocumentManager */
+    private $documentManager;
 
     /**
      * Sets the Container.
      *
      * @param ContainerInterface $container
      */
-    public function __construct(ContainerInterface $container = null)
+    public function __construct(DocumentManager $documentManager)
     {
-        $this->container     = $container;
-        $this->entityManager = $container->get('doctrine')->getManager();
+        $this->documentManager = $documentManager;
     }
 
     public function fetchFeed(Feed $feed)
@@ -41,7 +39,6 @@ class SimplePie implements RssFetcherInterface
         $sp->set_feed_url($feed->getUrl());
         @$sp->init();
         /** @var SimplePie_item $item */
-
         foreach ($sp->get_items() as $item) {
             $itemDate = DateTime::createFromFormat('Y-m-d H:i:s', $item->get_date('Y-m-d H:i:s'));
             if ($itemDate >= $feed->getLastcheck()) {
@@ -50,19 +47,37 @@ class SimplePie implements RssFetcherInterface
                 $post->setBody($item->get_content());
                 $post->setUrl($item->get_link());
                 $post->setCreated($itemDate);
-                $post->setFeed($feed);
 
+                $feed->addPost($post);
+
+                /** @var User $user */
                 foreach ($users as $user) {
-                    $post->addUnreadByUser($user);
+                    //TODO ugly
+                    /** @var UnreadReference $unreadFeed */
+                    if ($user->getUnreadFeeds()) {
+                        $unreadFeed = $user->getUnreadFeeds()->filter(
+                            function(UnreadReference $unreadReference) use ($feed) {
+                                return $unreadReference->getFeed()->getId() === $feed->getId();
+                            }
+                        );
+                    }
+
+                    if (!isset($unreadFeed) || !$unreadFeed) {
+                        $unread = new UnreadReference();
+                        $unread->setFeed($feed);
+                        $unread->setUnreadCount(1);
+                        $user->addUnreadFeed($unread);
+                    } else {
+                        $unreadFeed->setUnreadCount($unreadFeed->getUnreadCount()+1);
+                    }
                 }
 
-                $this->entityManager->persist($post);
-                $this->entityManager->flush();
-                $this->entityManager->flush();
+                $this->documentManager->persist($post);
+                $this->documentManager->flush();
             }
         }
 
         $feed->setLastcheck(new DateTime());
-        $this->entityManager->flush();
+        $this->documentManager->flush();
     }
 }

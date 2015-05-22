@@ -2,7 +2,7 @@
 
 namespace Dizzy\RssReaderBundle\Interfaces;
 
-use Dizzy\RssReaderBundle\Entity\Feed;
+use Dizzy\RssReaderBundle\Document\Feed;
 
 interface RssFetcherInterface
 {

@@ -10,15 +10,6 @@ use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 
 class AngularPostListener
 {
-
-    private $container;
-
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
-
-
     public function onKernelController(FilterControllerEvent $event)
     {
         $request = $event->getRequest();

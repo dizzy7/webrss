@@ -2,7 +2,7 @@
 
 namespace Dizzy\RssReaderBundle\Interfaces;
 
-use Dizzy\RssReaderBundle\Entity\User;
+use Dizzy\RssReaderBundle\Document\User;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 interface ImportInterface

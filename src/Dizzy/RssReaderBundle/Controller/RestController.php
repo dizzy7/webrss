@@ -4,6 +4,7 @@ namespace Dizzy\RssReaderBundle\Controller;
 
 use DateInterval;
 use DateTime;
+use Dizzy\RssReaderBundle\Document\Feed;
 use Dizzy\RssReaderBundle\Entity\Post;
 use Dizzy\RssReaderBundle\Entity\User;
 use Dizzy\RssReaderBundle\Interfaces\TokenAuthenticatedController;
@@ -22,16 +23,21 @@ class RestController extends Controller implements TokenAuthenticatedController
      */
     public function getFeedsAction()
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $resp          = $entityManager->getRepository('DizzyRssReaderBundle:Feed')->getUserFeedsWithPostsCount($this->getUser());
-        $result        = [];
-        foreach ($resp as $item) {
-            $feed                = $item[0];
-            $feed['unreadCount'] = $item[1];
-            $result[]            = $feed;
+        $documentManager = $this->get('doctrine.odm.mongodb.document_manager');
+        $feedsRepository = $documentManager->getRepository('DizzyRssReaderBundle:Feed');
+        $feeds = $feedsRepository->getUserFeeds($this->getUser());
+
+        $result = [];
+        /** @var Feed $feed */
+        foreach ($feeds as $feed) {
+            $result[] = [
+                'id' => $feed->getId(),
+                'title' => $feed->getTitle(),
+                'unreadCount' => $feedsRepository->countUnreadPosts($this->getUser(), $feed)
+            ];
         }
 
-        return new JsonResponse(['success'=>true,'data'=>$result]);
+        return new JsonResponse(['success' => true, 'data' => $result]);
     }
 
     /**
@@ -98,31 +104,32 @@ class RestController extends Controller implements TokenAuthenticatedController
      * @Route("/api/getToken/",name="api_get_token")
      *
      */
-    public function getToken(Request $request){
+    public function getToken(Request $request)
+    {
         $em = $this->getDoctrine()->getManager();
 
         $username = $request->request->get('username');
         $password = $request->request->get('password');
 
         /** @var User $user */
-        $user = $em->getRepository('DizzyRssReaderBundle:User')->findOneBy(['username'=>$username]);
-        if($user){
+        $user = $em->getRepository('DizzyRssReaderBundle:User')->findOneBy(['username' => $username]);
+        if ($user) {
             $encoder_service = $this->get('security.encoder_factory');
             $encoder = $encoder_service->getEncoder($user);
             $encoded_pass = $encoder->encodePassword($password, $user->getSalt());
 
-            if($encoded_pass === $user->getPassword()){
-                $user->setMobileToken(md5(microtime().$user->getSalt()));
+            if ($encoded_pass === $user->getPassword()) {
+                $user->setMobileToken(md5(microtime() . $user->getSalt()));
                 $expire = new DateTime();
                 $expire->add(new DateInterval('P90D'));
                 $user->setMobileTokenExpire($expire);
                 $em->flush();
 
-                return new JsonResponse(['success'=>true,'token'=>$user->getMobileToken()]);
+                return new JsonResponse(['success' => true, 'token' => $user->getMobileToken()]);
             }
         }
 
-        return new JsonResponse(['success'=>false]);
+        return new JsonResponse(['success' => false]);
     }
 
     public function getUser()

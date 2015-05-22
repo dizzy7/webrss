@@ -2,66 +2,59 @@
 
 namespace Dizzy\RssReaderBundle\Services;
 
-use Dizzy\RssReaderBundle\Entity\Feed;
-use Dizzy\RssReaderBundle\Entity\User;
+use Dizzy\RssReaderBundle\Document\Feed;
+use Dizzy\RssReaderBundle\Document\User;
 use Dizzy\RssReaderBundle\Interfaces\ImportInterface;
-use Doctrine\ORM\EntityManager;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Dizzy\RssReaderBundle\Interfaces\RssFetcherInterface;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImportOPML implements ImportInterface
 {
+    /** @var DocumentManager */
+    private $documentManager;
+    /** @var RssFetcherInterface */
+    private $fetcher;
 
-    /** @var ContainerInterface */
-    private $container;
-    /** @var EntityManager */
-    private $entityManager;
-
-    /**
-     * Sets the Container.
-     *
-     * @param ContainerInterface $container
-     */
-    public function __construct(ContainerInterface $container = null)
+    public function __construct(DocumentManager $documentManager, RssFetcherInterface $fetcher)
     {
-        $this->container     = $container;
-        $this->entityManager = $container->get('doctrine')->getManager();
+        $this->documentManager = $documentManager;
+        $this->fetcher = $fetcher;
     }
 
     public function importFile(User $user, UploadedFile $file)
     {
         $xml        = simplexml_load_file($file->getPathname());
         $count      = 0;
-        $rssfetcher = $this->container->get('rss.fetch');
         $userFeeds  = $user->getFeeds();
 
         foreach ($xml->body->outline as $item) {
-            $feed = $this->entityManager->getRepository('DizzyRssReaderBundle:Feed')->findOneBy(
+            $feed = $this->documentManager->getRepository('DizzyRssReaderBundle:Feed')->findOneBy(
                 ['url' => (string)$item['xmlUrl']]
             );
             if ($feed === null) {
                 $feed = new Feed();
                 $feed->setUrl((string)$item['xmlUrl']);
                 $feed->setTitle((string)$item['text']);
-                $this->entityManager->persist($feed);
-                $this->entityManager->flush();
+                $this->documentManager->persist($feed);
+                $this->documentManager->flush();
 
                 $user->addFeed($feed);
                 $feed->addUser($user);
-                $this->entityManager->flush();
+                $this->documentManager->flush();
 
-                $rssfetcher->fetchFeed($feed);
+                $this->fetcher->fetchFeed($feed);
             } else {
                 if (!$userFeeds->contains($feed)) {
                     $user->addFeed($feed);
-                    $this->entityManager->refresh($feed);
+                    $this->documentManager->refresh($feed);
                 }
             }
 
             $count++;
         }
 
-        $this->entityManager->flush();
+        $this->documentManager->flush();
 
         return $count;
     }

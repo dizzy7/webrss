@@ -23,6 +23,7 @@ class AppKernel extends Kernel
             new Knp\Bundle\MenuBundle\KnpMenuBundle(),
             new FOS\JsRoutingBundle\FOSJsRoutingBundle(),
             new Ob\HighchartsBundle\ObHighchartsBundle(),
+            new Doctrine\Bundle\MongoDBBundle\DoctrineMongoDBBundle(),
 
             new Dizzy\RssReaderBundle\DizzyRssReaderBundle(),
         );

@@ -1,7 +1,6 @@
 services:
     rss.angular_post_listener:
         class: Dizzy\RssReaderBundle\EventListener\AngularPostListener
-        arguments: [ @service_container ]
         tags:
           - { name: kernel.event_listener, event: kernel.controller, method: onKernelController }
     rss.tokens.action_listener:
@@ -11,8 +10,8 @@ services:
           - { name: kernel.event_listener, event: kernel.controller, method: onKernelController }
     rss.fetch:
         class: Dizzy\RssReaderBundle\Services\SimplePie
-        arguments: ["@service_container"]
+        arguments: [@doctrine.odm.mongodb.document_manager]
     rss.import.opml:
         class: Dizzy\RssReaderBundle\Services\ImportOPML
-        arguments: ["@service_container"]
+        arguments: [@doctrine_mongodb.odm.document_manager, @rss.fetch]
 
